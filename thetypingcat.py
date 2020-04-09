@@ -7,7 +7,7 @@ def breaks(abc):
     list_line = []
     current = 0
     line = """<div class="line">"""
-    for i in range(55):
+    for i in range(200):
         loc = abc.find(line,current)
         list_line.append(loc)
         current = loc + len(line)
