@@ -21,3 +21,5 @@ Run the thetypingcat.py file within the directory
 ```bash
 python3 thetypingcat.py
 ```
+
+Make sure to stop the script before the timer stops in webpage.
