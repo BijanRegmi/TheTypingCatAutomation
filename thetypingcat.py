@@ -1,6 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
 import time
 
 def breaks(abc):
@@ -9,6 +10,8 @@ def breaks(abc):
     line = """<div class="line">"""
     for i in range(200):
         loc = abc.find(line,current)
+        if loc == -1:
+            break
         list_line.append(loc)
         current = loc + len(line)
     return list_line
@@ -69,29 +72,32 @@ chrome_options.add_argument("--no-sandbox")
 chrome_options.add_argument("--start-maximized")
 chrome_options.add_experimental_option("detach",True)
 
-#Opening webpage
-browser = webdriver.Chrome(chrome_options=chrome_options)
-browser.get("https://thetypingcat.com/typing-speed-test/1m")
-time.sleep(5)
 
-#Login Process
-signin = browser.find_element_by_xpath("/html/body/div[1]/div/div/header/nav/div/div[2]/ul[2]/li[2]/a")
-signin.click()
-time.sleep(5)
-uname = browser.find_element_by_xpath("/html/body/div[1]/div/div/div[2]/div/div/div/div/form/div[1]/div/div/input")
-pswd = browser.find_element_by_xpath("/html/body/div[1]/div/div/div[2]/div/div/div/div/form/div[2]/div/div/input")
-submit = browser.find_element_by_xpath("/html/body/div[1]/div/div/div[2]/div/div/div/div/form/div[4]/div/button")
-email = "<YOUR EMAIL HERE>"
-password = "<YOUR PASSWORD HERE>"
-uname.send_keys(email)
-pswd.send_keys(password)
-time.sleep(2)
-submit.click()
-time.sleep(3)
+login = int(input("Do you want to login?(0 for no)"))
 
-#Redirecting to homepage
-browser.get("https://thetypingcat.com/typing-speed-test/3m")
-time.sleep(5)
+if login:
+    #Login Process
+    email = input("Your email: ")
+    password = input("Your password: ")
+    browser = webdriver.Chrome(chrome_options=chrome_options)
+    browser.get("https://thetypingcat.com/sign-in")
+    time.sleep(5)
+    uname = browser.find_element_by_xpath("/html/body/div[1]/div/div/div[2]/div/div/div/div/form/div[1]/div/div/input")
+    pswd = browser.find_element_by_xpath("/html/body/div[1]/div/div/div[2]/div/div/div/div/form/div[2]/div/div/input")
+    submit = browser.find_element_by_xpath("/html/body/div[1]/div/div/div[2]/div/div/div/div/form/div[4]/div/button")
+    uname.send_keys(email)
+    pswd.send_keys(password)
+    time.sleep(2)
+    submit.click()
+    time.sleep(3)
+    browser.get("https://thetypingcat.com/typing-speed-test/1m")
+    time.sleep(5)
+else:
+    #Homepage
+    browser = webdriver.Chrome(chrome_options=chrome_options)
+    browser.get("https://thetypingcat.com/typing-speed-test/1m")
+    time.sleep(5)
+
 
 #Selecting the frame and getting its code
 text = browser.find_element_by_xpath("/html/body/div[1]/div/div/div[2]/div/div/div/div/div[1]/div[2]/div[1]/div/div[1]/div[2]")
@@ -109,7 +115,21 @@ end_text = end(abc)
 last = last_lines(abc)
 #Creates the paragraph to be typed
 word += create(abc) + end_text + "\n" + last
-#Typing to the browser using action chains
+#Typing to the browser
+lines = word.splitlines()
 actions = ActionChains(browser)
-actions.send_keys(word)
+time = 0
+for i in lines:
+    if time > 45:
+        break
+    words = i.split()
+    for j in words:
+        actions.send_keys(j)
+        if j != words[-1]:
+            actions.send_keys(Keys.SPACE)
+        actions.pause(.25)
+        time += .25
+        if time > 59:
+            break
+    actions.send_keys(Keys.ENTER)
 actions.perform()
